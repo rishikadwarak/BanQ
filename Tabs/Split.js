@@ -315,10 +315,6 @@ export default class Split extends Component {
     this.setState({ toggleSplit: false });
   };
 
-  checkCommonsYouOwe = () => { };
-
-  checkCommonsYouAreOwed = () => { };
-
   showYouOwe = () => {
     /* SAJAL
     This is where you need to fix the text inputs and the save button */
@@ -574,12 +570,12 @@ export default class Split extends Component {
               {this.showSplit()}
             </View>
             <View style={{ width: '100%', alignSelf: 'center' }}>
-              <Button
+              {/* <Button
                 full
                 style={styles.buttonStyle}
                 onPress={() => this.logout()}>
                 <Text style={styles.buttonTextStyle}>LOGOUT</Text>
-              </Button>
+              </Button> */}
               {this.showYouOwe()}
             </View>
             <CardItem style={styles.cardItem}>

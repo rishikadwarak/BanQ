@@ -1,3 +1,4 @@
+
 //contains integrated menu
 
 import React, { Component } from 'react';
@@ -471,7 +472,7 @@ export default class Menu extends Component {
 						<Text style={styles.rightText}>{"YOUR CUSTOM"}</Text>
 					</Body>
 				</Row>
-				<Row style={{ marginTop: 0, paddingBottom: 30 }}>
+				<Row style={{ marginTop: 0, paddingBottom: 0 }}>
 					{/* <Picker style={{ height: 50, width: 150 }} >
 									<Picker.Item label="Mahesh" value="key0" />
 									<Picker.Item  label="Adarsh" value="key1" />
@@ -495,13 +496,13 @@ export default class Menu extends Component {
 					renderItem={({ item }) => {
 						return (
 							<Row>
-								<Col>
+								<Col size={3}>
 									<Body>
 										<Text style={styles.rightTextSmall}>{item.name} {" :  Rs."} {item.price}</Text>
 									</Body>
 								</Col>
 								{/* <Text>Hey</Text> */}
-								<Col>
+								<Col size={1}>
 									<Body
 										style={{
 											textAlign: 'left',
@@ -553,7 +554,7 @@ export default class Menu extends Component {
 									<Text style={styles.rightText}>{shopName.toUpperCase()}</Text>
 								</Body>
 							</Row>
-							<Row style={{ marginTop: 0, paddingBottom: 30 }}>
+							<Row style={{ marginTop: 0, paddingBottom: 0 }}>
 								{/* <Picker style={{ height: 50, width: 150 }} >
 									<Picker.Item label="Mahesh" value="key0" />
 									<Picker.Item  label="Adarsh" value="key1" />
@@ -582,12 +583,12 @@ export default class Menu extends Component {
 								renderItem={({ item }) => {
 									return (
 										<Row>
-											<Col>
+											<Col size={3}>
 												<Body>
 													<Text style={styles.rightTextSmall}>{item.name} {" :  Rs."} {item.price}</Text>
 												</Body>
 											</Col>
-											<Col>
+											<Col size={1}>
 												<Body
 													style={{
 														textAlign: 'left',
@@ -682,7 +683,7 @@ export default class Menu extends Component {
 						style={{
 							alignSelf: 'center',
 							padding: 20,
-							height: '60%',
+							height: '62.5%',
 							width: 350,
 							borderRadius: 20,
 						}}>
@@ -704,7 +705,7 @@ export default class Menu extends Component {
 											<Text style={styles.buttonTextStyle}>Add</Text>
 										</Button>
 									</Col>
-									<Col>
+									{/* <Col>
 										<Button
 											onPress={() => {
 												this.props.navigation.navigate('Home');
@@ -712,7 +713,7 @@ export default class Menu extends Component {
 											style={styles.buttonStyle}>
 											<Text style={styles.buttonTextStyle}>Save Changes</Text>
 										</Button>
-									</Col>
+									</Col> */}
 								</Row>
 							</Grid>
 						</ScrollView>
@@ -854,10 +855,11 @@ const styles = StyleSheet.create({
 	},
 	buttonStyle: {
 		borderRadius: 20,
-		width: '98%',
+		width: '40%',
 		justifyContent: 'center',
 		backgroundColor: '#EA5656',
 		marginTop: 0,
+		alignSelf: 'center',
 	},
 	buttonTextStyle: {
 		fontSize: 16,

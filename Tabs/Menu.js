@@ -1,3 +1,5 @@
+//contains integrated menu
+
 import React, { Component } from 'react';
 import { useState } from 'react';
 import {
@@ -5,19 +7,42 @@ import {
 	StyleSheet,
 	ScrollView,
 	View,
-	Text,
+	//Text,
 	StatusBar,
-	Button,
+	//Button,
 	TextInput,
 	FlatList,
 	Alert,
 	TouchableOpacity,
 	Picker,
+	Modal,
+	ImageBackground,
+	Image
 } from 'react-native';
+
+import {
+	Container,
+	Header,
+	Content,
+	Card,
+	CardItem,
+	Body,
+	Text,
+	Grid,
+	Col,
+	Row,
+	Left,
+	Thumbnail,
+	Button,
+	Icon,
+	Right,
+	Item,
+} from 'native-base';
 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import { TouchableHighlight } from 'react-native-gesture-handler';
 
 export default class Menu extends Component {
 
@@ -62,6 +87,7 @@ export default class Menu extends Component {
 			toggleAddButton: false,
 			newItemName: '',
 			newItemPrice: 0,
+			modalVisible: false,
 			customList: [],
 			customPicker: '',
 
@@ -285,22 +311,12 @@ export default class Menu extends Component {
 			});
 	}
 
-	checkInput = () => {
-		let val = this.state.textInput
-		if (!isNaN(val) && !isNaN(parseFloat(val))) {
-			val = parseInt(val)
-			console.log(typeof (val), val)
-		}
-		else {
-			console.log("Not a num")
-		}
-
-
-	}
 
 
 	spendMoney = (boughtItem, boughtItemPrice, storeName, boughtItemPartition) => {
-		console.log(boughtItemPartition);
+		console.log(boughtItemPartition, "PArtitionnnnn");
+		if (boughtItemPartition == "A")
+			boughtItemPartition = "Main"
 		var today = new Date();
 		var date = today.getDate() + "-" + parseInt(today.getMonth() + 1) + "-" + today.getFullYear();
 		//console.log(date);
@@ -440,65 +456,83 @@ export default class Menu extends Component {
 		}
 
 	}
-
 	displayCustomItemInfo = () => {
-		//console.log("NEW BITCH")
+		console.log("NEW BITCH")
 		let temp = new Object()
 		//console.log(shopName)
 		//if (shopName.localeCompare(store_details.storeName) == 0 && shopName.localeCompare("Your Custom") != 0) {
 		temp = this.state.customList
-		// console.log("inside if")
+		console.log(temp)
 		// console.log(temp.shopItemsList)
 		return (
-			<View>
-				<View style={{ flexDirection: 'row' }}>
-					<Text>{"YOUR CUSTOM"}</Text>
-					<Picker
-						selectedValue={this.state.partitionNames}
-						style={{ height: 50, width: 150 }}
+			<Grid style={{ marginTop: 0, paddingBottom: 30 }}>
+				<Row>
+					<Body>
+						<Text style={styles.rightText}>{"YOUR CUSTOM"}</Text>
+					</Body>
+				</Row>
+				<Row style={{ marginTop: 0, paddingBottom: 30 }}>
+					{/* <Picker style={{ height: 50, width: 150 }} >
+									<Picker.Item label="Mahesh" value="key0" />
+									<Picker.Item  label="Adarsh" value="key1" />
+									<Picker.Item  label="Naveen" value="key2" />
+									<Picker.Item  label="Vendiman" value="key3" />
+								</Picker> */}
+					<Picker style={{ height: 50, width: 150 }}
+						selectedValue={temp.pickerValue}
 						onValueChange={(itemValue, itemIndex) => {
 							temp.pickerValue = itemValue
 							console.log(temp.pickerValue);
 							this.setState({ customPicker: temp.pickerValue })
-							// this.setState((state) => {
-							// 	let snPartitions = state.shopPartitions
-							// 	snPartitions[index].pickerValue = itemValue
-							// 	return {
-							// 		snPartitions
-							// 	}
-							// })
-						}}>
-						{/* <Picker.Item label="Partition A" value="A" />
-									<Picker.Item label="Partition B" value="B" /> */}
+						}}
+					>
 						{this.createPickerDropdown()}
 					</Picker>
-				</View>
-				<View style={{ flexDirection: 'row' }}>
-					<View style={{ flexDirection: 'column' }}>
-						{
-							<FlatList style={{ width: '100%' }}
-								data={temp}
-								renderItem={({ item }) => {
-									return (
-										<View style={{ flexDirection: 'row' }}>
-											<Text>{item.name} {" :  Rs."} {item.price} </Text>
-											<TouchableOpacity style={styles.button} onPress={() => { this.spendMoney(item.name, item.price, "Your Custom", this.state.customPicker) }}>
-												<Text>  >  </Text>
-											</TouchableOpacity>
-										</View>)
-								}} />
+				</Row>
 
-						}
-					</View>
-				</View>
-			</View>
+				<FlatList style={{ width: '100%' }}
+					data={temp}
+					renderItem={({ item }) => {
+						return (
+							<Row>
+								<Col>
+									<Body>
+										<Text style={styles.rightTextSmall}>{item.name} {" :  Rs."} {item.price}</Text>
+									</Body>
+								</Col>
+								{/* <Text>Hey</Text> */}
+								<Col>
+									<Body
+										style={{
+											textAlign: 'left',
+											padding: 0,
+											height: 10,
+											width: 300,
+											borderRadius: 20,
+										}}>
+										<TouchableHighlight onPress={() => { this.spendMoney(item.name, item.price, "Your Custom", this.state.customPicker) }}>
+											<Icon
+												type="FontAwesome"
+												name="arrow-circle-o-right"
+												style={{ fontSize: 15, color: 'black' }}
+											/>
+										</TouchableHighlight>
+									</Body>
+								</Col>
+							</Row>
+
+						)
+					}} />
+
+
+
+			</Grid>
 		)
 		//	}
 		// else
 		// 	return null
 
 	}
-
 	displayShopInfo = () => {
 		// console.log("NEW BITCH")
 		return this.state.shopNames.map((name, index) => {
@@ -511,12 +545,23 @@ export default class Menu extends Component {
 					// console.log("inside if")
 					// console.log(temp.shopItemsList)
 					return (
-						<View>
-							<View style={{ flexDirection: 'row' }}>
-								<Text>{shopName.toUpperCase()}</Text>
-								<Picker
+
+						<Grid style={{ marginTop: 0, paddingBottom: 30 }}>
+							{console.log("Hey from flatlist")}
+							<Row>
+								<Body>
+									<Text style={styles.rightText}>{shopName.toUpperCase()}</Text>
+								</Body>
+							</Row>
+							<Row style={{ marginTop: 0, paddingBottom: 30 }}>
+								{/* <Picker style={{ height: 50, width: 150 }} >
+									<Picker.Item label="Mahesh" value="key0" />
+									<Picker.Item  label="Adarsh" value="key1" />
+									<Picker.Item  label="Naveen" value="key2" />
+									<Picker.Item  label="Vendiman" value="key3" />
+								</Picker> */}
+								<Picker style={{ height: 50, width: 150 }}
 									selectedValue={temp.pickerValue}
-									style={{ height: 50, width: 150 }}
 									onValueChange={(itemValue, itemIndex) => {
 										temp.pickerValue = itemValue
 										this.setState((state) => {
@@ -526,31 +571,48 @@ export default class Menu extends Component {
 												snPartitions
 											}
 										})
-									}}>
-									{/* <Picker.Item label="Partition A" value="A" />
-									<Picker.Item label="Partition B" value="B" /> */}
+									}}
+								>
 									{this.createPickerDropdown()}
 								</Picker>
-							</View>
-							<View style={{ flexDirection: 'row' }}>
-								<View style={{ flexDirection: 'column' }}>
-									{
-										<FlatList style={{ width: '100%' }}
-											data={temp.shopItemsList}
-											renderItem={({ item }) => {
-												return (
-													<View style={{ flexDirection: 'row' }}>
-														<Text>{item.name} {" :  Rs."} {item.price} </Text>
-														<TouchableOpacity style={styles.button} onPress={() => { this.spendMoney(item.name, item.price, shopName, temp.pickerValue) }}>
-															<Text>  >  </Text>
-														</TouchableOpacity>
-													</View>)
-											}} />
+							</Row>
 
-									}
-								</View>
-							</View>
-						</View>
+							<FlatList style={{ width: '100%' }}
+								data={temp.shopItemsList}
+								renderItem={({ item }) => {
+									return (
+										<Row>
+											<Col>
+												<Body>
+													<Text style={styles.rightTextSmall}>{item.name} {" :  Rs."} {item.price}</Text>
+												</Body>
+											</Col>
+											<Col>
+												<Body
+													style={{
+														textAlign: 'left',
+														padding: 0,
+														height: 10,
+														width: 300,
+														borderRadius: 20,
+													}}>
+													<TouchableHighlight onPress={() => { this.spendMoney(item.name, item.price, shopName, temp.pickerValue) }}>
+														<Icon
+															type="FontAwesome"
+															name="arrow-circle-o-right"
+															style={{ fontSize: 15, color: 'black' }}
+														/>
+													</TouchableHighlight>
+												</Body>
+											</Col>
+										</Row>
+
+									)
+								}} />
+
+
+
+						</Grid>
 					)
 				}
 				else
@@ -590,30 +652,122 @@ export default class Menu extends Component {
 
 		);
 	}
-
+	setModalVisible = visible => {
+		this.setState({ modalVisible: visible });
+	};
 	render() {
 
 		return (
-			<ScrollView>
-				<View style={styles.container}>
-					<Text>Menu</Text>
-				</View>
-				<View>
-					{this.displayShopInfo()}
-					{this.displayCustomItemInfo()}
-					<Button title="Add" onPress={() => { this.toggleAddButtonFunc() }} />
-					{this.showNewItem()}
-				</View>
+			<View style={{ backgroundColor: 'white' }}>
+				<ImageBackground
+					style={styles.imgBackground}
+					imageStyle={styles.imgBG}
+					source={require('../assets/bg.png')}>
+					<Image
+						source={require('../assets/logo.png')}
+						style={styles.logoStyle}
+					/>
+					<CardItem style={styles.logocard}>
+						<Image
+							source={require('../assets/banqLogo.png')}
+							style={{
+								width: '90%',
+								resizeMode: 'contain',
+								margin: 10,
+							}}
+						/>
+					</CardItem>
 
-				<Button title="Logout" onPress={() => { this.logout() }} />
+					<Card
+						style={{
+							alignSelf: 'center',
+							padding: 20,
+							height: '60%',
+							width: 350,
+							borderRadius: 20,
+						}}>
+						{/* <Grid>
+              <Text style={styles.largeText}>Shops</Text>
+            </Grid> */}
+						<ScrollView>
+							{this.displayShopInfo()}
+							{this.displayCustomItemInfo()}
 
-			</ScrollView>
+							<Grid style={{ marginTop: 0, marginBottom: 0, paddingBottom: 0 }}>
+								<Row>
+									<Col>
+										<Button
+											onPress={() => {
+												this.setModalVisible(true);
+											}}
+											style={styles.buttonStyle}>
+											<Text style={styles.buttonTextStyle}>Add</Text>
+										</Button>
+									</Col>
+									<Col>
+										<Button
+											onPress={() => {
+												this.props.navigation.navigate('Home');
+											}}
+											style={styles.buttonStyle}>
+											<Text style={styles.buttonTextStyle}>Save Changes</Text>
+										</Button>
+									</Col>
+								</Row>
+							</Grid>
+						</ScrollView>
+					</Card>
+
+					<Modal
+						animationType="slide"
+						transparent={false}
+						visible={this.state.modalVisible}
+						statusBarTranslucent={true}>
+						<View style={styles.centeredView}>
+							<View style={styles.modalView}>
+								<Text
+									style={{
+										fontSize: 30,
+										textAlign: 'center',
+										fontWeight: 'bold',
+									}}>
+									Add Item
+                </Text>
+
+								<TextInput
+									style={styles.TextInput}
+									placeholder="Item Name"
+									onChangeText={(input) => { this.setState({ newItemName: input }) }}
+								//onChangeText={value => this.setState({name: value})}
+								/>
+								<TextInput
+									style={styles.TextInput}
+									keyboardType="number-pad"
+									placeholder="Item Price"
+									onChangeText={(input) => { this.setState({ newItemPrice: input }) }}
+								//onChangeText={value => this.setState({number: value})}
+								/>
+
+								<Button
+									title="Cancel"
+									onPress={() => {
+										this.saveChangesAddItem()
+										this.setModalVisible(false);
+									}}
+									style={styles.buttonStyleModal}>
+									<Text style={styles.buttonTextStyle}>Okay</Text>
+								</Button>
+							</View>
+						</View>
+					</Modal>
+				</ImageBackground>
+			</View>
 		);
 	}
 }
 
 
-const styles = StyleSheet.create({
+/* const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: '#fff',
@@ -636,5 +790,136 @@ const styles = StyleSheet.create({
 		margin: 20,
 		//position: 'absolute',
 		//right: 0,
+	},
+});
+ */
+const styles = StyleSheet.create({
+	imgBackground: {
+		width: '100%',
+		height: '100%',
+		resizeMode: 'contain',
+	},
+	imgBG: {
+		borderBottomLeftRadius: 25,
+		borderBottomRightRadius: 25,
+	},
+	logoStyle: {
+		width: 40,
+		height: 51,
+		resizeMode: 'contain',
+		justifyContent: 'flex-start',
+		padding: 25,
+		margin: 10,
+	},
+	nameCard: { textAlign: 'center', padding: 20 },
+	cardItemStyle: { backgroundColor: 'transparent' },
+	largeTextHead: {
+		color: 'black',
+		fontFamily: 'Oxygen-Bold',
+		fontSize: 30,
+		textAlign: 'center',
+	},
+	largeText: {
+		color: 'black',
+		fontFamily: 'Oxygen-Bold',
+		fontSize: 20,
+	},
+	logocard: {
+		width: '100%',
+		alignSelf: 'center',
+		justifyContent: 'center',
+		marginTop: 20,
+		backgroundColor: 'transparent',
+	},
+	smallTextHead: {
+		color: 'black',
+		fontSize: 20,
+		fontFamily: 'Oxygen-Regular',
+	},
+	smallTextHead: {
+		color: 'black',
+		fontSize: 15,
+		fontFamily: 'Oxygen-Regular',
+	},
+	rightText: {
+		color: 'black',
+		fontFamily: 'Oxygen-Bold',
+		fontSize: 20,
+		fontWeight: '700',
+	},
+	rightTextSmall: {
+		color: 'black',
+		fontFamily: 'Oxygen-Regular',
+		fontSize: 15,
+	},
+	buttonStyle: {
+		borderRadius: 20,
+		width: '98%',
+		justifyContent: 'center',
+		backgroundColor: '#EA5656',
+		marginTop: 0,
+	},
+	buttonTextStyle: {
+		fontSize: 16,
+		fontFamily: 'Oxygen-Bold',
+		fontWeight: 'bold',
+		color: 'white',
+		textAlign: 'center',
+		padding: 1,
+	},
+
+	title: {
+		color: 'purple',
+		textAlign: 'center',
+		fontWeight: '900',
+		fontSize: 50,
+	},
+	Box: {
+		margin: 5,
+		padding: 25,
+		borderWidth: 2,
+		borderRadius: 25,
+	},
+	name: {
+		fontWeight: 'bold',
+		color: 'black',
+		fontSize: 30,
+		marginRight: 50,
+	},
+	profession: {
+		fontSize: 15,
+		fontWeight: '200',
+		padding: 10,
+	},
+	number: {
+		fontSize: 20,
+		fontWeight: '200',
+	},
+	centeredView: {
+		justifyContent: 'center',
+		alignSelf: 'center',
+		width: '85%',
+		height: '50%',
+	},
+	modalView: {
+		borderWidth: 2,
+		padding: 15,
+		borderRadius: 25,
+	},
+	TextInput: {
+		fontSize: 20,
+		fontWeight: '200',
+		borderBottomWidth: 1,
+		paddingTop: 30,
+	},
+
+	buttonStyleModal: {
+		borderRadius: 20,
+		width: '98%',
+		justifyContent: 'center',
+		backgroundColor: '#EA5656',
+		marginTop: 30,
+		marginBottom: 20,
+		paddingTop: 0,
 	},
 });

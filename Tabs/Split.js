@@ -680,7 +680,7 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   buttonTextStyle: {
-    fontSize: 15,
+    fontSize: 18,
     fontFamily: 'Oxygen-Bold',
     fontWeight: 'bold',
     color: 'white',

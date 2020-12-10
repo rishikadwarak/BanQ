@@ -1,5 +1,3 @@
-//contains integrated Wallet
-
 import React,{Component} from 'react';
 import {useState} from 'react';
 import {
@@ -7,38 +5,17 @@ import {
     StyleSheet,
     ScrollView,
     View,
-    //Text,
+    Text,
     StatusBar,
-    //Button,
+    Button,
     TextInput,
-	Alert,
-	Image,
-	ImageBackground,
-
+	Alert
   } from 'react-native';
-
-  import {
-	Container,
-	Header,
-	Content,
-	Card,
-	CardItem,
-	Body,
-	Text,
-	Grid,
-	Col,
-	Row,
-	Left,
-	Thumbnail,
-	Button,
-	Icon,
-	Right,
-  } from 'native-base';
 
 import firestore, { firebase } from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth'
 import database from '@react-native-firebase/database';
-//import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { setEnabled } from 'react-native/Libraries/Performance/Systrace';
 import { VictoryPie } from 'victory-native';
@@ -110,7 +87,6 @@ export default class Wallet extends Component{
 			  })
 		  }  */
 		  if(user){
-
 			let userName = user.email;
 			userName = userName.split("@")
 			if(userName[0].includes('.'))
@@ -134,7 +110,7 @@ export default class Wallet extends Component{
 					//console.log(this.state.TotalBudget,this.state.SpentCash,this.state.StartDate.getDay())
 				})
 			}) */
-			await database().ref("Budget/"+this.state.Id).once('value',async (snap)=>{
+			await database().ref("Budget/"+Id).once('value',async (snap)=>{
 				console.log("Beofre updating states");
 			  
 				await this.setState(state=>{
@@ -247,13 +223,10 @@ export default class Wallet extends Component{
 		}
 	  })
 
-	  database().ref("Transactions/"+this.state.Id ).on('value',snap=>{
-		  console.log("transaction happened");
-		  this.mountTransactions()
-	  })
+	  
 
 	  database().ref("Budget/"+this.state.Id+"/Today").on('value',snap=>{
-		//console.log("Listening")
+		console.log("Listening")
 		  let tempDate = new Date(snap.val().Date)
 		  //console.log(tempDate,"val of tempdate",tempDate.getDate(),"hey")
 		  if(tempDate.getDate()<new Date().getDate()){
@@ -273,7 +246,7 @@ export default class Wallet extends Component{
 				  todaySpentCash:snap.val().SpentCash
 			  })
 		  }
-		//this.mountTransactions()
+		this.mountTransactions()
 		  
 	  })
 	  /* await this.mountTransactions() */
@@ -444,9 +417,12 @@ export default class Wallet extends Component{
 		if(!item){
 		if(this.state.TotalBudgetEdit && this.state.TotalBudgetPrev!=this.state.TotalBudget){
 			return(
-				<TouchableHighlight onPress={()=>{this.saveChanges()}}>
+				<View>
+					<TouchableHighlight onPress={()=>{this.saveChanges()}}>
 					<Icon name="save" size={30} ></Icon>
 				</TouchableHighlight>
+				</View>
+				
 			);
 		}
 		else{
@@ -476,9 +452,8 @@ export default class Wallet extends Component{
 		})
 	}
 	else{
-		console.log("toggle clicked")
+
 		if(item.budgetChangeFlag){
-			console.log("toggle clicked")
 			this.setState(state=>{
 				let partitions = state.partitions
 				partitions[index].TotalBudget =  item.TotalBudgetPrev
@@ -493,7 +468,6 @@ export default class Wallet extends Component{
 		this.setState(state=>{
 			let partitions = state.partitions
 			partitions[index].TotalBudgetEdit = !partitions[index].TotalBudgetEdit
-			console.log(partitions[index].TotalBudgetEdit)
 			return{
 				partitions
 			}
@@ -509,7 +483,7 @@ export default class Wallet extends Component{
 
 	savePartition = ()=>{
 		let val = this.state.partitionBudget
-		if (!isNaN(val) && !isNaN(parseFloat(val)) && val!=''){
+		if (!isNaN(val) && !isNaN(parseFloat(val))){
 			if(parseInt(val)>0){
 			//let verification = this.verifyPartition()
 			let verification = this.verifyPartition()
@@ -576,192 +550,93 @@ export default class Wallet extends Component{
 		}
 	}
 
-	showPartition = ()=>{ // edit addition of partition
+	showPartition = ()=>{
 		if(this.state.togglePartition){
 			return(
-				<View
-				style={{
-				  backgroundColor: 'white',
-				  width: '90%',
-				  alignSelf: 'center',
-				  borderRadius: 25,
-				  padding: 20,
-				}}>
-				<View
-				  style={{
-					flexDirection: 'row',
-					justifyContent: 'space-between',
-				  }}>
-				  <Text style={{fontSize: 15, fontFamily: 'Oxygen', marginTop: 15}}>
-					Partiton Name
-				  </Text>
-				  <TextInput
-					placeholder="enter here"
-					onChangeText={(input) => {
-					  this.setState({partitionName: input});
-					}}
-					style={{fontSize: 15, fontFamily: 'Oxygen'}}
-				  />
+				<View style={{backgroundColor:'green'}}>
+					<View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+						<Text>Partiton Name</Text>
+						<TextInput onChangeText = {(input)=>{this.setState({partitionName:input})}} style={{width:50,color:'red'}}/>
+					</View>
+					<View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+					<Text>Partiton Budget</Text>
+						<TextInput onChangeText = {(input)=>{this.setState({partitionBudget:input})}} />
+					</View>
+					<Button title="save changes" onPress={()=>{this.savePartition()}}></Button>
 				</View>
-				<View
-				  style={{
-					flexDirection: 'row',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-				  }}>
-				  <Text style={{fontSize: 15, fontFamily: 'Oxygen'}}>
-					Partiton Budget
-				  </Text>
-				  <TextInput
-					placeholder="enter here"
-					onChangeText={(input) => {
-					  this.setState({partitionBudget: input});
-					}}
-					style={{fontSize: 15, fontFamily: 'Oxygen'}}
-				  />
-				</View>
-				<Button
-				  full
-				  style={{borderRadius: 25, width: '50%', alignSelf: 'center'}}
-				  onPress={() => {
-					this.savePartition();
-				  }}>
-				  <Text>Save Changes</Text>
-				</Button>
-			  </View>
 			)
 		}
 	}
-	displayPartitions = ()=>{ //partitions here
+	displayPartitions = ()=>{
 		if(this.state.partitions.length!=0){
 			let totalPar = this.state.partitions.length
 			
 			
 
 			return(
-		<View>
-			<View>
-                <Text style={{
-								fontSize: 30,
-								fontFamily: 'Oxygen-Bold',
-                marginTop: 30,
-                fontWeight: '700',
-                textAlign: 'center',
-                color: 'black'
-                }}>PARTITIONS</Text>
-              </View>
-				<View
-				style={{
-				  backgroundColor: 'white',
-				  width: '90%',
-				  alignSelf: 'center',
-				  borderRadius: 25,
-				  marginTop: 10,
-				}}>
-				{this.state.partitions.map((item, index) => (
-				  <Card
-					transparent
-					style={{
-					  alignSelf: 'center',
-					  padding: '3%',
-					  height: 125,
-					  width: '100%',
-					  borderRadius: 25,
-					}}>
-					<Grid>
-					  <Col size={3} style={{borderRadius: 20}}>
-						<Body
-						  style={{
-							textAlign: 'left',
-							height: 100,
-							width: '80%',
-							marginTop: 5,
-							borderRadius: 25,
-						  }}>
-						  {/* <Text style={{alignSelf: 'flex-start', padding: 2}}>Total Budget</Text> */}
-						  <View
-							style={{
-							  flexDirection: 'row',
-							  alignItems: 'center',
-							  alignSelf: 'flex-start',
-							}}>
-							<Text style={{fontSize: 20, fontFamily: 'Oxygen'}}>
-							  Total Budget
-							</Text>
-							<TextInput
-							  editable={true}
-							  onChangeText={(input) => {
-								item.budgetChangeFlag = true;
-								let found = -1;
-								this.setState((state) => {
-								  let partitions = state.partitions;
-								  partitions[index].TotalBudget = input;
-								  return {
-									partitions,
-								  };
-								});
-							  }}
-							  value={this.state.partitions[
-								index
-							  ].TotalBudget.toString()}
-							  style={{
-								fontSize: 18,
-								fontFamily: 'Oxygen',
-								marginLeft: 40,
-								color: 'black',
-							  }}
-							/>
-						  </View>
-	  
-						  {/* <Text style={{alignSelf: 'flex-start', padding: 2}}>Cash left</Text> */}
-						  <View
-							style={{
-							  flexDirection: 'row',
-							  alignItems: 'center',
-							  justifyContent: 'space-between',
-							  alignSelf: 'flex-start',
-							  padding: 2,
-							}}>
-							<Text style={{fontSize: 20, fontFamily: 'Oxygen'}}>
-							  Cash Left
-							</Text>
-							<Text
-							  style={{
-								fontSize: 18,
-								fontFamily: 'Oxygen',
-								marginLeft: 70,
-							  }}>
-							  {item.TotalBudget - item.SpentCash}
-							</Text>
-						  </View>
-	  
-						  {/* <Text style={{alignSelf: 'flex-start', padding: 2}}>Mahesh</Text> */}
-						  <View style={{alignSelf: 'flex-start', padding: 2}}>
-							<Text style={{fontSize: 20, fontFamily: 'Oxygen-Bold', fontWeight: '700'}}>
-							  {item.Name}
-							</Text>
-						  </View>
-						</Body>
-					  </Col>
-	  
-					  {/* pencil here */}
-					  <Col size={1}>
-						<Body style={{flexDirection: 'row'}}>
-						  <TouchableHighlight
-							onPress={() => {
-							  this.toggleChangeBudget(item, index);
-							}}
-							style={{flexDirection: 'row'}}>
-							<Icon name="pencil" size={50}></Icon>
-						  </TouchableHighlight>
-						  {this.showButtonSaveChanges(item, index)}
-						</Body>
-					  </Col>
-					</Grid>
-				  </Card>
-				))}
-			  </View>
-			  </View>
+				<View >
+					{	
+
+						this.state.partitions.map((item,index)=>(
+							<View style={{flexDirection:'row',justifyContent:'space-between'}}>
+								<View>
+									<View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'red'}}>
+										<Text>Total Budget</Text>
+										<TextInput editable = {item.TotalBudgetEdit}  onChangeText = {(input)=>{
+											item.budgetChangeFlag = true
+											let found=-1
+											this.setState(
+												state=>{
+													let partitions = state.partitions
+													partitions[index].TotalBudget = input;
+													
+
+													return{
+														partitions
+													}
+													}
+											)
+											
+										}
+											} value={this.state.partitions[index].TotalBudget.toString()} style={{color:"black"}}/>
+
+											
+									</View>
+									<View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'red'}}>
+										<Text>Cash Left</Text>
+										<Text>{item.TotalBudget - item.SpentCash}</Text>
+									</View>
+
+									<View style={{backgroundColor:'red'}}>
+										<Text>{item.Name}</Text>
+									</View>
+									
+								</View>
+
+								<View style={{flexDirection:'row'}}> 
+									<TouchableHighlight onPress={()=>{this.toggleChangeBudget(item,index)
+										/* this.setState(state=>{
+										let partitions = state.partitions
+										partitions[index].TotalBudgetEdit = !partitions[index].TotalBudgetEdit
+										return{
+											partitions
+										}
+									}) */
+									}} style={{flexDirection:'row'}}>
+										<Icon name="pencil" size={30} ></Icon>
+										
+									</TouchableHighlight>
+									{this.showButtonSaveChanges(item,index)}
+								</View>
+
+							</View>
+							
+							
+						))
+						
+					}
+					
+				</View>
 			)
 		}
 		else
@@ -835,12 +710,8 @@ export default class Wallet extends Component{
 			})
 			}
 		})
-		if(key.length==0){
-			this.setState({transactions:[]})
+		if(key.length==0)
 			return
-		}
-		
-
 		let noOftransactions=0;
 		let totalTransactions=20;
 		let trans=[]
@@ -860,7 +731,6 @@ export default class Wallet extends Component{
 						tempObj.itemPrice = subSnap.val().itemPrice
 						tempObj.shopName = subSnap.val().shopName
 						tempObj.date = tempDate
-						tempObj.key = subSnap.key;
 						transTemp.push(tempObj)
 						
 						++noOftransactions
@@ -891,100 +761,78 @@ export default class Wallet extends Component{
 
 			
 		return(
-			<View>
-				  <View>
-                <Text style={{
-								fontSize: 30,
-								fontFamily: 'Oxygen-Bold',
-                marginTop: 0,
-                fontWeight: '700',
-                textAlign: 'center',
-                color: 'black'
-                }}>TRANSACTIONS</Text>
-              </View>
-			<View
-			style={{
-			  backgroundColor: 'white',
-			  width: '90%',
-			  alignSelf: 'center',
-			  borderRadius: 25,
-			  marginTop: 10,
-			}}>
-			{this.state.transactions.map((item, index) => (
-			  <Card
-				transparent={true}
-				style={{
-		  alignSelf: 'center',
-		  padding: 10,
-				  height: 100,
-				  width: '100%',
-				  borderRadius: 25,
-				}}>
-				<View>
-				  <Grid>
-					<Row>
-					  <Col>
-						<Text style={{fontSize: 20, fontFamily: 'Oxygen'}}>
-						  {item.itemName}
-						</Text>
-					  </Col>
-					  <Col  style={{marginLeft: -10}}>
-						<Text style={{fontSize: 12, fontFamily: 'Oxygen', marginTop: 10}}>
-						  {item.date.getDate()} - {item.date.getMonth() + 1} -{' '}
-						  {item.date.getFullYear()}
-						</Text>
-					  </Col>
-					</Row>
-					<Col style={{marginLeft: 280, marginTop: 10}}>
-					  <Text
-						style={{
-						  fontSize: 20,
-						  fontFamily: 'Oxygen',
-						  width: '150%',
-						}}>
-						{item.itemPrice}
-					  </Text>
-					</Col>
-  
-					<Row style={{marginTop: 40}}>
-					  <Col>
-						<Text
-						  style={{
-							fontSize: 12,
-							fontFamily: 'Oxygen',
-							width: '70%',
-						  }}>
-						  {item.shopName}
-						</Text>
-					  </Col>
-					  <Col>
-						<Text
-						  style={{
-				  fontSize: 12,
-							fontFamily: 'Oxygen',
-							width: '100%',
-						  }}>
-						  {item.itemPartition}
-						</Text>
-  
-				<Button
-				transparent
-				rounded
-						onPress={() => {
-						 this.undoTransaction(item.itemPartition,item.itemPrice,item.date,item.key)
-						}}
-						style={{marginLeft: 80, marginTop: -33}}>
-						<Text style={{fontSize: 15, fontFamily: 'Oxygen', color: 'red'}}>undo</Text>
-					  </Button>
+			
+			<View >
+					{	
+						
+						this.state.transactions.map((item,index)=>(
 
-					  </Col>
-					</Row>
-				  </Grid>
+							<View style={{flexDirection:'row',justifyContent:'space-around',alignItems:'center',backgroundColor:'yellow',borderBottomWidth:3}}>
+							
+								<View style={{flexDirection:'column'}}>
+									<Text>{item.itemName} </Text>
+									<Text>{item.shopName}</Text>
+								</View>
+								<View style={{flexDirection:'column'}} >
+									<Text>{item.date.getDate()} - {item.date.getMonth()+1} - {item.date.getFullYear()}</Text>
+									<Text>{item.itemPartition}</Text>
+								</View>
+								<View>
+									<Text>{item.itemPrice}</Text>
+								</View>
+								
+						</View>
+						
+
+							/* <View style={{flexDirection:'row',justifyContent:'space-between'}}>
+								<View>
+									<View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'red'}}>
+										<Text>Total Budget</Text>
+										<TextInput editable = {item.TotalBudgetEdit}  onChangeText = {(input)=>{
+											item.budgetChangeFlag = true
+											let found=-1
+											this.setState(
+												state=>{
+													let partitions = state.partitions
+													partitions[index].TotalBudget = input;
+													
+
+													return{
+														partitions
+													}
+													}
+											)
+											
+										}
+											} value={this.state.partitions[index].TotalBudget.toString()} style={{color:"black"}}/>
+
+											
+									</View>
+									<View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',backgroundColor:'red'}}>
+										<Text>Cash Left</Text>
+										<Text>{item.TotalBudget - item.SpentCash}</Text>
+									</View>
+								</View>
+
+								<View style={{flexDirection:'row'}}> 
+									<TouchableHighlight onPress={()=>{this.toggleChangeBudget(item,index)
+										
+									}} style={{flexDirection:'row'}}>
+										<Icon name="pencil" size={30} ></Icon>
+										
+									</TouchableHighlight>
+									{this.showButtonSaveChanges(item,index)}
+								</View>
+
+							</View> */
+
+							
+							
+						))
+						
+					}
+					
 				</View>
-			  </Card>
-			))}
-		  </View>
-		  </View>
 		);
 
 		}
@@ -994,91 +842,6 @@ export default class Wallet extends Component{
 				return null;
 			}
 	}
-
-	undoTransaction =(partitionName,itemPrice,date,key)=>{
-		//need to get key from mount transactions
-		console.log(date.getDate())
-		date = date.getDate() + "-" + (date.getMonth()+1) + "-" + date.getFullYear()
-
-		console.log(partitionName,itemPrice,date,key)
-		console.log("In undo transanction");
-		let index = this.findPartitionIndex(partitionName)
-		let SpentCash = this.state.SpentCash;
-		let todaySpentCash = this.state.todaySpentCash;
-		let boughtToday = this.verifyBuyDate(date)
-		if(boughtToday){	
-			todaySpentCash = todaySpentCash - itemPrice
-			this.setState({todaySpentCash:todaySpentCash})
-			database().ref("Budget/" + this.state.Id + "/Today").set({
-				Date:this.state.todayDate,
-				SpentCash:todaySpentCash
-			})
-		}
-		if(index==-1){
-			console.log("Partition is main")
-			SpentCash = SpentCash - itemPrice;
-			this.setState({
-				SpentCash:SpentCash
-			})
-			database().ref("Budget/"+this.state.Id+"/SpentCash").set({
-				Cash:SpentCash
-			})
-		}
-		else{
-			SpentCash = SpentCash - itemPrice;
-			let partitions = this.state.partitions;
-			partitions[index].SpentCash = partitions[index].SpentCash - itemPrice;
-			this.setState({
-				partitions:partitions,
-				SpentCash:SpentCash
-			})
-			database().ref("Budget/"+this.state.Id + "/SpentCash").set({
-				Cash:SpentCash
-			})
-			database().ref("Budget/"+this.state.Id + "/Partitions/" + partitionName).set({
-				Name:partitions[index].Name,
-				SpentCash:partitions[index].SpentCash,
-				TotalBudget:partitions[index].TotalBudget
-			});
-		}
-
-		database().ref("Transactions/"+this.state.Id + "/" + date + "/" + key).remove().then(()=>{
-			console.log("Component removed");
-		});
-	}
-
-	findPartitionIndex = (partitionName) => {
-		let partitions = this.state.partitions;
-		let elementIndex = -1
-		//console.log(partitions,"All partitions")
-		partitions.map((item, index) => {
-			//console.log(item.Name,partitionName,"From function")
-
-			if (item.Name === partitionName) {
-
-				//console.log(index,"Index from function")
-				elementIndex = index
-			}
-		})
-		return elementIndex
-	}
-
-	verifyBuyDate = (stringDate)=>{
-		let comps = stringDate.split('-');
-		let date = parseInt(comps[0])
-		let month = parseInt(comps[1])
-		let year = parseInt(comps[2])
-		//console.log(date,month,year)
-		let temp = new Date()
-		//console.log(temp.getDate()==date)
-		if(temp.getDate()==date && temp.getMonth()+1==month && temp.getFullYear()==year){
-			return true;
-		}
-		else	
-			return false;
-
-	}
-
 	decode=(id)=> {
 		var PUSH_CHARS = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 		id = id.substring(0,8);
@@ -1090,357 +853,61 @@ export default class Wallet extends Component{
 		return timestamp;
 	  }
 	
-	checkMount=()=>{ //first 2 cards here , pie here
+	checkMount=()=>{
 		if(this.state.mountedFLag){
 			return(
-				<ImageBackground
-				style={styles.imgBackground}
-				imageStyle={styles.imgBG}
-				source={require('../assets/bg.png')}>
-				<Image
-				  source={require('../assets/logo.png')}
-				  style={styles.logoStyle}
-				/>
 				<View>
-						<Image
-							source={require('../assets/banqLogo.png')}
-							style={{
-								width: '90%',
-								resizeMode: 'contain',
-								margin: 10,
-							}}
-						/>
-				  <View>
-					<Card
-					  style={{
-						alignSelf: 'center',
-						padding: 20,
-						width: '90%',
-						borderRadius: 25,
-					  }}>
-					  <Grid>
-						<Col>
-						  <Body
-							style={{
-							  padding: 0,
-							  width: '90%',
-							  borderRadius: 25,
-							}}>
-							<Text
-							  style={{
-								fontSize: 20,
-								fontFamily: 'Oxygen',
-								alignSelf: 'flex-start',
-								marginTop: 10,
-							  }}>
-							  Spent Today
-							</Text>
-						  </Body>
-						</Col>
-						<Col>
-						  <Body>
-							<Text
-							  style={{
-								fontSize: 20,
-								fontFamily: 'Oxygen',
-								marginTop: 10,
-								marginLeft: -35,
-							  }}>
-							  INR {this.state.todaySpentCash}
-							</Text>
-						  </Body>
-						</Col>
-					  </Grid>
-					  <Grid>
-						<Col>
-						  <Body
-							style={{
-							  width: '90%',
-							  borderRadius: 25,
-							}}>
-							<Text
-							  style={{
-								fontSize: 20,
-								fontFamily: 'Oxygen',
-								marginTop: 21,
-								alignSelf: 'flex-start',
-							  }}>
-							  Total
-							</Text>
-						  </Body>
-						</Col>
-						<Col>
-						  <Body style={{flexDirection: 'row', marginLeft: 20}}>
-							<Text
-							  style={{
-								fontSize: 20,
-								fontFamily: 'Oxygen',
-								marginTop: 10,
-								textAlign: 'right',
-							  }}>
-							  INR
-							</Text>
-							<TextInput
-							  editable={this.state.TotalBudgetEdit}
-							  onChangeText={(input) => {
-								this.setState({
-								  TotalBudget: input,
-								  budgetChangeFlag: true,
-								});
-							  }}
-							  value={this.state.TotalBudget.toString()}
-							  style={{
-								fontSize: 20,
-								fontFamily: 'Oxygen',
-								marginTop: 10,
-								color: 'black',
-							  }}
-							/>
-							<TouchableHighlight
-							  onPress={() => {
-								this.toggleChangeBudget();
-							  }}
-							  style={{flexDirection: 'row', marginLeft: 10}}>
-							  <Icon name="pencil" size={2}></Icon>
-							</TouchableHighlight>
-							{this.showButtonSaveChanges()}
-						  </Body>
-						</Col>
-					  </Grid>
-	  
-					  <Grid>
-						<Col>
-						  <Body
-							style={{
-							  textAlign: 'left',
-							  padding: 0,
-							  height: 100,
-							  width: '90%',
-							  borderRadius: 25,
-							}}>
-							<Text
-							  style={{
-								fontSize: 20,
-								fontFamily: 'Oxygen',
-								width: '100%',
-								marginTop: 10,
-							  }}>
-							  Total Cash Left
-							</Text>
-						  </Body>
-						</Col>
-						<Col>
-						  <Body>
-							<Text
-							  style={{
-								fontSize: 20,
-								fontFamily: 'Oxygen',
-								marginTop: 25,
-								marginLeft: -20,
-								textAlign: 'right',
-							  }}>
-							  INR {this.state.TotalBudget - this.state.SpentCash}
-							</Text>
-						  </Body>
-						</Col>
-					  </Grid>
-	  
-					  <Grid style={{marginTop: -20}}>
-						<Col>
-						  <Body>
-							<Text
-							  style={{
-								fontSize: 20,
-								fontFamily: 'Oxygen',
-								marginLeft: -50,
-								alignSelf: 'flex-start',
-							  }}>
-							  Days Left
-							</Text>
-						  </Body>
-						</Col>
-						<Col>
-						  <Body>
-							<Text
-							  style={{
-								fontSize: 20,
-								fontFamily: 'Oxygen',
-								marginLeft: -70,
-							  }}>
-							  {this.state.daysLeft}
-							</Text>
-						  </Body>
-						</Col>
-					  </Grid>
-					</Card>
-					<Button
-					  full
-					  style={{
-						width: '90%',
-						borderRadius: 25,
-						alignSelf: 'center',
-						marginBottom: 5,
-					  }}
-					  onPress={() => {
-						this.togglePartitionView();
-					  }}>
-					  <Text style={styles.buttonTextStyle}>Add Partition</Text>
-					</Button>
-					{this.showPartition()}
-        {/*   <View>
-                <Text style={{
-								fontSize: 30,
-								fontFamily: 'Oxygen-Bold',
-                marginTop: 30,
-                fontWeight: '700',
-                textAlign: 'center',
-                color: 'black'
-                }}>PARTITIONS</Text>
-              </View> */}
-					<ScrollView>
-					  <View>
-						{this.displayPartitions()}
-						{this.checkDate()}
-					  </View>
-					</ScrollView>
-	  
-         
-					{/* pie chart */}
-					{this.pieVisible()}
-					{/*  <Card
-							  style={{
-								alignSelf: 'center',
-								padding: 20,
-								height: 100,
-								width: '90%',
-								borderRadius: 25,
-							  }}>
-							  <View>
-								<Grid>
-								  <Row>
-									<Col>
-									  <Text>Mathri</Text>
-									</Col>
-									<Col>
-									  <Text>8-10-12</Text>
-									</Col>
-								  </Row>
-								  <Col style={{marginLeft: 300, marginTop: 10}}>
-									<Text>5</Text>
-								  </Col>
-			  
-								  <Row style={{marginTop: 20}}>
-									<Col>
-									  <Text>Naveen's Tea Stall</Text>
-									</Col>
-									<Col>
-									  <Text>Mahesh</Text>
-									</Col>
-								  </Row>
-								</Grid>
-							  </View>
-							</Card> */}
-            {/*   <View>
-                <Text style={{
-								fontSize: 30,
-								fontFamily: 'Oxygen-Bold',
-                marginTop: 0,
-                fontWeight: '700',
-                textAlign: 'center',
-                color: 'black'
-                }}>TRANSACTIONS</Text>
-              </View> */}
-					{this.showTransactions()}
-				  </View>
+				<Text>Walet</Text>
+				<View style={{flexDirection:'row',justifyContent:'space-between'}}>
+					<Text>Spent Today</Text>
+					<Text>{this.state.todaySpentCash}</Text>
 				</View>
-			  </ImageBackground>
+				<View style={{flexDirection:'column'}}>
+
+					<View style={{flexDirection:'row',justifyContent:'space-between'}}>
+						<Text>Cash Left</Text>
+						<Text>{this.state.TotalBudget - this.state.SpentCash}</Text>
+					</View>
+					<View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+					<Text>Total Budget</Text>
+					<TextInput editable = {this.state.TotalBudgetEdit}  onChangeText = {(input)=>{this.setState({TotalBudget:input,budgetChangeFlag:true});}} value={this.state.TotalBudget.toString()} style={{color:"black"}}/>
+					
+					</View>
+					<View style={{flexDirection:'row',justifyContent:'space-between'}}>
+						<Text>Days Left</Text>
+						<Text>{this.state.daysLeft}</Text>
+					</View>
+					<TouchableHighlight >
+					</TouchableHighlight>
+					<Button title="Toggle Change Budget" onPress={()=>{this.toggleChangeBudget()}}/>
+					
+
+				</View>
+				<VictoryPie data={this.state.graphicData} width={250} height={250} colorScale={this.state.graphicColor} innerRadius={50} />
+				{this.showButtonSaveChanges()}
+				
+				<View style={{height:100}}></View>
+
+
+				<Button title="add partition" onPress={()=>{this.togglePartitionView()}}/>
+				{this.showPartition()}
+				{this.displayPartitions()}
+				{this.checkDate()}
+
+				<View style={{height:100}}></View >
+				{this.showTransactions()}
+				<View style={{height:100}}></View >
+				<Button title="Logout" onPress={()=>{this.logout()}}/>
+			</View>
 			)
 		}
 
-	}
-
-	pieVisible=()=>{
-		if(this.state.graphicData.length!=0){
-			return(
-				<View>
-					 <View>
-                <Text style={{
-								fontSize: 30,
-								fontFamily: 'Oxygen-Bold',
-                fontWeight: '700',
-                textAlign: 'center',
-                color: 'black',
-                marginTop: 30
-                }}>PIE CHART</Text>
-              </View>
-				<Card
-					  style={{
-						alignSelf: 'center',
-						padding: 20,
-						height: 200,
-						width: "90%",
-            borderRadius: 25,
-            alignContent: 'center',
-            justifyContent: 'center'
-					  }}>
-              <View style={{alignItems: 'center', justifyContent: 'center'}}>
-							<VictoryPie
-              style={{alignSelf: 'center'}}
-							  data={this.state.graphicData}
-							  width={200}
-							  height={200}
-							  colorScale={this.state.graphicColor}
-							  innerRadius={0}
-							/>
-              </View>
-					</Card>
-				</View>
-			)
-		}
-		else
-			return null;
 	}
 	render(){
 		return(
 			<ScrollView>
 				{this.checkMount()}
-				{/* <Button full style={styles.buttonStyle} onPress={()=>{
-					this.undoTransaction("Main",100,"9-12-2020","-MO7W1jNPbBZtuAZ_01n")
-
-				}} >
-					<Text style={styles.buttonTextStyle}>Hey</Text>
-				  </Button> */}
 			</ScrollView>
 		);
 	}
 }
-
-const styles = StyleSheet.create({
-	imgBackground: {
-	  width: '100%',
-	  height: '100%',
-	  resizeMode: 'contain',
-	},
-	imgBG: {
-	  borderBottomLeftRadius: 25,
-	  borderBottomRightRadius: 25,
-	},
-	logoStyle: {
-	  width: 40,
-	  height: 51,
-	  resizeMode: 'contain',
-	  justifyContent: 'flex-start',
-	  padding: 25,
-	  margin: 10,
-	},
-	nameCard: {textAlign: 'center', padding: 20},
-	cardItemStyle: {backgroundColor: 'transparent'},
-	largeText: {
-	  color: 'black',
-	  fontFamily: 'Oxygen-Bold',
-	},
-	smallText: {
-	  color: 'black',
-	},
-	rightText: {color: 'black'},
-  });

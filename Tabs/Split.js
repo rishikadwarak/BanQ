@@ -270,51 +270,93 @@ export default class Split extends Component {
   };
 
   saveChangesYouOwe = () => {
-    database()
-      .ref('Split/' + this.state.Id + '/You Owe/')
-      .push({
-        name: this.state.personYouOwe,
-        amount: this.state.moneyYouOwe,
-      });
-    this.setState({ toggleYouOwe: false });
+    let name = this.state.personYouOwe;
+    let amount = this.state.moneyYouOwe;
+    if(name!='' && !isNaN(amount)){
+      if(parseInt(amount)>0){
+        database()
+        .ref('Split/' + this.state.Id + '/You Owe/')
+        .push({
+          name: this.state.personYouOwe,
+          amount: this.state.moneyYouOwe,
+        });
+      this.setState({ toggleYouOwe: false });
+      }
+      else
+        alert("Please enter a number greater than 0")
+      }
+
+    else{
+      alert("Details haven't been entered correctly")
+    }
+   
   };
 
   saveChangesYouAreOwed = () => {
     console.log('Save button pressed boi');
-    database()
-      .ref('Split/' + this.state.Id + '/You Are Owed/')
-      .push({
-        name: this.state.personYouAreOwed,
-        amount: this.state.moneyYouAreOwed,
-      });
-    this.setState({ toggleYouAreOwed: false });
+    let name = this.state.personYouAreOwed;
+    let amount = this.state.moneyYouAreOwed;
+    if(name!='' && !isNaN(amount)){
+      if(parseInt(amount)>0){
+        database()
+        .ref('Split/' + this.state.Id + '/You Are Owed/')
+        .push({
+          name: this.state.personYouAreOwed,
+          amount: this.state.moneyYouAreOwed,
+        });
+      this.setState({ toggleYouAreOwed: false });
+      }
+      else
+      alert("Please enter a number greater than 0")
+    }
+    else{
+      alert("Details haven't been entered correctly")
+    }
+    
   };
 
   saveChangesSplit = () => {
     console.log('Split save button pressed boi');
-    var list = this.state.splitNameInput.split(',');
-    console.log(list);
-    this.setState({ splitNames: list });
-    let num = list.length;
-    let splitmoneys = this.state.splitAmount / (num + 1);
-    splitmoneys = Math.round(splitmoneys);
-    list.forEach((Name) => {
-      // console.log("inside loop");
-      console.log(Name);
-      database()
-        .ref('Split/' + this.state.Id + '/You Are Owed/')
-        .push({
-          name: Name,
-          amount: splitmoneys,
+    let name = this.state.splitNameInput;
+    let amount = this.state.splitAmount;
+    if(name!='' && !isNaN(amount)){
+      if(parseInt(amount)>0){
+        var list = this.state.splitNameInput.split(',');
+        console.log(list);
+        this.setState({ splitNames: list });
+        let num = list.length;
+        let splitmoneys = this.state.splitAmount / (num + 1);
+        splitmoneys = Math.round(splitmoneys);
+        list.forEach((Name) => {
+          // console.log("inside loop");
+          console.log(Name);
+          database()
+            .ref('Split/' + this.state.Id + '/You Are Owed/')
+            .push({
+              name: Name,
+              amount: splitmoneys,
+            });
         });
-    });
-    // database().ref("Split/" + this.state.Id + "/You\ Are\ Owed/").push({
-    //   name: this.state.personYouAreOwed,
-    //   amount: this.state.moneyYouAreOwed,
-    // })
-    this.setState({ toggleSplit: false });
+        // database().ref("Split/" + this.state.Id + "/You\ Are\ Owed/").push({
+        //   name: this.state.personYouAreOwed,
+        //   amount: this.state.moneyYouAreOwed,
+        // })
+        this.setState({ toggleSplit: false });
+      }
+      else
+      alert("Please enter a number greater than 0")
+    }
+    else{
+      alert("Details haven't been entered correctly")
+    }
+   
   };
 
+  checkCommonsYouOwe = () => { };
+
+  checkCommonsYouAreOwed = () => { };
+
+ 
   showYouOwe = () => {
     /* SAJAL
     This is where you need to fix the text inputs and the save button */
@@ -517,107 +559,107 @@ export default class Split extends Component {
   render() {
     return (
       <ImageBackground
+      style={{
+        width: '100%',
+        height: '100%',
+        resizeMode: 'contain',
+      }}
+      imageStyle={{
+        borderBottomLeftRadius: 25,
+        borderBottomRightRadius: 25,
+      }}
+      source={require('../assets/bg.png')}>
+      <Image
+        source={require('../assets/logo.png')}
         style={{
-          width: '100%',
-          height: '100%',
+          width: 40,
+          height: 51,
           resizeMode: 'contain',
+          justifyContent: 'flex-start',
+          padding: 25,
+          margin: 10,
         }}
-        imageStyle={{
-          borderBottomLeftRadius: 25,
-          borderBottomRightRadius: 25,
-        }}
-        source={require('../assets/bg.png')}>
-        <Image
-          source={require('../assets/logo.png')}
-          style={{
-            width: 40,
-            height: 51,
-            resizeMode: 'contain',
-            justifyContent: 'flex-start',
-            padding: 25,
-            margin: 10,
-          }}
-        />
-        <ScrollView>
-          <View>
-            <View style={{ width: '100%', alignSelf: 'center' }}>
-              <Button
-                full
-                style={styles.buttonStyle}
-                onPress={() => this.toggleYouOweFunc()}>
-                <Text style={styles.buttonTextStyle}>You Owe</Text>
-              </Button>
-              {this.showYouOwe()}
-            </View>
+      />
+      <ScrollView>
+        <View>
+          <View style={{ width: '100%', alignSelf: 'center' }}>
+            <Button
+              full
+              style={styles.buttonStyle}
+              onPress={() => this.toggleYouOweFunc()}>
+              <Text style={styles.buttonTextStyle}>You Owe</Text>
+            </Button>
+            {this.showYouOwe()}
+          </View>
 
-            <View style={{ width: '100%', alignSelf: 'center' }}>
-              <Button
-                full
-                style={styles.buttonStyle}
-                onPress={() => this.toggleYouAreOwedFunc()}>
-                <Text style={styles.buttonTextStyle}>You Are Owed</Text>
-              </Button>
-              {this.showYouAreOwed()}
-            </View>
+          <View style={{ width: '100%', alignSelf: 'center' }}>
+            <Button
+              full
+              style={styles.buttonStyle}
+              onPress={() => this.toggleYouAreOwedFunc()}>
+              <Text style={styles.buttonTextStyle}>You Are Owed</Text>
+            </Button>
+            {this.showYouAreOwed()}
+          </View>
 
-            <View style={{ width: '100%', alignSelf: 'center' }}>
-              <Button
-                full
-                style={styles.buttonStyle}
-                onPress={() => this.toggleSplitFunc()}>
-                <Text style={styles.buttonTextStyle}>Split</Text>
-              </Button>
-              {this.showSplit()}
-            </View>
-            <View style={{ width: '100%', alignSelf: 'center' }}>
-              {/* <Button
-                full
-                style={styles.buttonStyle}
-                onPress={() => this.logout()}>
-                <Text style={styles.buttonTextStyle}>LOGOUT</Text>
-              </Button> */}
-              {this.showYouOwe()}
-            </View>
-            <CardItem style={styles.cardItem}>
-              <Body>
+          <View style={{ width: '100%', alignSelf: 'center' }}>
+            <Button
+              full
+              style={styles.buttonStyle}
+              onPress={() => this.toggleSplitFunc()}>
+              <Text style={styles.buttonTextStyle}>Split</Text>
+            </Button>
+            {this.showSplit()}
+          </View>
+          <View style={{ width: '100%', alignSelf: 'center' }}>
+            {/* <Button
+              full
+              style={styles.buttonStyle}
+              onPress={() => this.logout()}>
+              <Text style={styles.buttonTextStyle}>LOGOUT</Text>
+            </Button> */}
+            {/* {this.showYouOwe()} */}
+          </View>
+          <CardItem style={styles.cardItem}>
+            <Body>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  fontSize: 23.5,
+                  fontWeight: '700',
+                  fontFamily: 'Oxygen-Bold',
+                }}>
+                LEDGER
+              </Text>
+              <View>
                 <Text
                   style={{
-                    alignSelf: 'center',
-                    fontSize: 23.5,
+                    alignSelf: 'flex-start',
+                    fontSize: 21,
                     fontWeight: '700',
                     fontFamily: 'Oxygen-Bold',
                   }}>
-                  LEDGER
+                  You Owe:
                 </Text>
-                <View>
-                  <Text
-                    style={{
-                      alignSelf: 'flex-start',
-                      fontSize: 21,
-                      fontWeight: '700',
-                      fontFamily: 'Oxygen-Bold',
-                    }}>
-                    You Owe:
-                  </Text>
-                  {this.displayYouOwe()}
-                  <Text
-                    style={{
-                      alignSelf: 'flex-start',
-                      fontSize: 21,
-                      fontWeight: '700',
-                      fontFamily: 'Oxygen-Bold',
-                    }}>
-                    You Are Owed:
-                  </Text>
-                  {this.displayYouAreOwed()}
-                  {/* <Text style={{fontSize: 15,
-                 fontWeight: '600', fontFamily: 'Oxygen-Bold'}}>Jane :<Text style={{marginLeft: 20}}> Rs. 40</Text></Text> */}
-                </View>
-              </Body>
-            </CardItem>
-          </View>
-        </ScrollView>
-      </ImageBackground>
+                {this.displayYouOwe()}
+                <Text
+                  style={{
+                    alignSelf: 'flex-start',
+                    fontSize: 21,
+                    fontWeight: '700',
+                    fontFamily: 'Oxygen-Bold',
+                  }}>
+                  You Are Owed:
+                </Text>
+                {this.displayYouAreOwed()}
+                {/* <Text style={{fontSize: 15,
+               fontWeight: '600', fontFamily: 'Oxygen-Bold'}}>Jane :<Text style={{marginLeft: 20}}> Rs. 40</Text></Text> */}
+              </View>
+            </Body>
+          </CardItem>
+        </View>
+      </ScrollView>
+    </ImageBackground>
       // <ScrollView>
       //   <View style={styles.container}>
       //     <Text>SPLIT</Text>
@@ -680,7 +722,7 @@ const styles = StyleSheet.create({
     width: '90%',
   },
   buttonTextStyle: {
-    fontSize: 18,
+    fontSize: 15,
     fontFamily: 'Oxygen-Bold',
     fontWeight: 'bold',
     color: 'white',

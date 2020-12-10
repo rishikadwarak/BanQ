@@ -66,7 +66,7 @@ export default class Menu extends Component {
 	constructor() {
 		super()
 		this.state = {
-			Id: 'sn178',
+			Id: '',
 			partitions: [],
 			partitionNames: [],
 			TotalPartitionInfo: [],
@@ -91,6 +91,7 @@ export default class Menu extends Component {
 			modalVisible: false,
 			customList: [],
 			customPicker: '',
+			spendMoneyFlag:0
 
 		}
 	}
@@ -251,7 +252,9 @@ export default class Menu extends Component {
 		})
 
 		database().ref("Budget/" + this.state.Id + "/Today").on('value', snap => {
-
+			this.setState({
+				todaySpentCash:snap.val().SpentCash
+			})
 			let tempDate = new Date(snap.val().Date)
 			console.log(tempDate, "val of tempdate", tempDate.getDate(), "hey")
 			if (tempDate.getDate() < new Date().getDate()) {
@@ -315,7 +318,16 @@ export default class Menu extends Component {
 
 
 	spendMoney = (boughtItem, boughtItemPrice, storeName, boughtItemPartition) => {
+		//let spendMoneyFLag = this.state.spendMoneyFlag;
+		
+			/* spendMoneyFLag=1;
+			this.setState({
+				spendMoneyFLag:1
+			}) */
+
 		console.log(boughtItemPartition, "PArtitionnnnn");
+		console.log(typeof(boughtItemPrice),"TYpeeee")
+		boughtItemPrice = parseInt(boughtItemPrice)
 		if (boughtItemPartition == "A")
 			boughtItemPartition = "Main"
 		var today = new Date();
@@ -328,13 +340,19 @@ export default class Menu extends Component {
 		//console.log(index,"index after function")
 		if (canBuy) {
 			this.setState(state => {
+				console.log("SpentCash before buying from menu",state.SpentCash)
+				console.log(this.state.spendMoneyFlag)
 				let SpentCash = state.SpentCash + boughtItemPrice
+				console.log("SpentCash after buying from menu",SpentCash)
 				let partitions = state.partitions;
 				let todaySpentCash = state.todaySpentCash + boughtItemPrice;
+				console.log(!partitions,!todaySpentCash,!SpentCash)
+				
 				//console.log(partitions)
 				//console.log(index,"index")
 
 				if (index == -1) {
+					console.log("Setting main partition")
 					//console.log(SpentCash,"From menu")
 					database().ref("Budget/" + this.state.Id + "/SpentCash").set({
 						Cash: SpentCash
@@ -355,11 +373,21 @@ export default class Menu extends Component {
 						TotalBudget: partitions[index].TotalBudget
 					})
 				}
+				console.log("setting today")
 				database().ref("Budget/" + this.state.Id + "/Today").set({
 					Date: this.state.todayDate.getTime(),
 					SpentCash: todaySpentCash
 				})
 
+				console.log("setting transactions")
+
+				database().ref("Transactions/" + this.state.Id + "/" + date).push({
+					shopName: storeName,
+					itemName: boughtItem,
+					itemPrice: boughtItemPrice,
+					itemPartition: boughtItemPartition,
+		
+				})
 				return {
 					partitions,
 					SpentCash,
@@ -368,6 +396,9 @@ export default class Menu extends Component {
 			})
 		}
 		else {
+			/* this.setState({
+				spendMoneyFlag:0
+			}) */
 			if (index != -1) {
 				Alert.alert("Not enough cash in ", this.state.partitions[index].Name)
 			}
@@ -375,14 +406,6 @@ export default class Menu extends Component {
 			else
 				alert("Not enough cash in Main");
 		}
-
-		database().ref("Transactions/" + this.state.Id + "/" + date).push({
-			shopName: storeName,
-			itemName: boughtItem,
-			itemPrice: boughtItemPrice,
-			itemPartition: boughtItemPartition,
-
-		})
 	}
 	canBuy = (price, index) => {
 		if (index != -1) {
@@ -431,11 +454,27 @@ export default class Menu extends Component {
 
 	saveChangesAddItem = () => {
 		console.log("Save button pressed boi")
-		database().ref("Custom\ Items/" + this.state.Id + "/").push({
-			itemName: this.state.newItemName,
-			itemPrice: this.state.newItemPrice,
-		})
-		this.setState({ toggleAddButton: false })
+		let name = this.state.newItemName;
+		let amount = this.state.newItemPrice;
+		if(name!='' && !isNaN(amount)){
+			if(parseInt(amount)>0){
+				database().ref("Custom\ Items/" + this.state.Id + "/").push({
+					itemName: this.state.newItemName,
+					itemPrice: this.state.newItemPrice,
+				})
+				this.setState({
+					toggleAddButton: false,
+					newItemName: '',
+					newItemPrice: 0
+				})
+			}
+			else
+       			alert("Please enter a number greater than 0")
+		}
+		else{
+			alert("Details haven't been entered correctly")
+		  }
+		
 	}
 
 	showNewItem = () => {
@@ -756,7 +795,7 @@ export default class Menu extends Component {
 										this.setModalVisible(false);
 									}}
 									style={styles.buttonStyleModal}>
-									<Text style={styles.buttonTextStyle}>Okay</Text>
+									<Text style={styles.buttonTextStyle}>Save Item</Text>
 								</Button>
 							</View>
 						</View>

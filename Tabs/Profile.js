@@ -19,18 +19,24 @@ import {
 } from 'native-base';
 
 import auth from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
+
 
 export default class Profile extends Component {
+
   constructor() {
     super();
     this.state = {
       editButton: false,
       Id: '',
-      name: 'Sajal Ganjewala',
+      name: '',
       email: '',
       telephone: '',
+      nameplaceholder: '',
+      telephoneplaceholder: '',
     }
   }
+
 
   async componentDidMount() {
     await auth().onAuthStateChanged(async (user) => {
@@ -47,6 +53,19 @@ export default class Profile extends Component {
           Id: Id,
           email: Id + "@snu.edu.in"
         });
+        await database().ref("Users").once('value', snap => {
+          snap.forEach(subSnap => {
+            if (subSnap.val().Email == this.state.email) {
+              console.log("found it")
+              console.log(subSnap.val())
+              this.setState({
+                name: subSnap.val().Name,
+                telephone: subSnap.val().PhoneNo,
+                email: subSnap.val().Email
+              })
+            }
+          })
+        })
       }
       //let Id = "rt347"
       console.log(Id);
@@ -69,8 +88,57 @@ export default class Profile extends Component {
       editButton: !this.state.editButton
     })
   }
+
+
   saveChanges = () => {
-    this.toggleEditButton()
+
+    let name = this.state.nameplaceholder
+    let testFlagName = false
+    if (name.length > 0) {
+      for (let i = 0; i < name.length; i++) {
+        if ((name[i] >= 'a' && name[i] <= 'z') || (name[i] >= 'A' && name[i] <= 'Z') || (name[i] == ' ')) {
+          testFlagName = true
+        }
+        else {
+          testFlagName = false
+          break
+        }
+      }
+    }
+    console.log("test name")
+    console.log(testFlagName)
+    let tel = this.state.telephoneplaceholder
+    // let count = 0
+    let testFlagPh = false
+    if (tel.length == 10) {
+      for (let i = 0; i < tel.length; i++) {
+        if (tel[i] >= '0' && tel[i] <= '9') {
+          testFlagPh = true
+        }
+        else {
+          testFlagPh = false
+          break
+        }
+      }
+    }
+    console.log("test tel")
+    console.log(testFlagPh)
+    if (testFlagPh == false && testFlagName == false)
+      alert("Invalid Input. Enter again")
+    else if (testFlagPh == false)
+      alert("Invalid Mobile Number. Enter again")
+    else if (testFlagName == false)
+      alert("Invalid Name. Enter again")
+    else {
+      this.setState(
+        {
+          name: this.state.nameplaceholder,
+          telephone: this.state.telephoneplaceholder
+        }
+      )
+      this.toggleEditButton()
+    }
+
   }
 
 
@@ -99,11 +167,11 @@ export default class Profile extends Component {
               style={{ fontSize: 15, fontFamily: 'Oxygen' }}
               placeholder="enter here"
               onChangeText={(input) => {
-                this.setState({ name: input });
+                this.setState({ nameplaceholder: input });
               }}
             />
           </View>
-          <View
+          {/* <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -119,7 +187,7 @@ export default class Profile extends Component {
               }}
               style={{ fontSize: 15, fontFamily: 'Oxygen' }}
             />
-          </View>
+          </View> */}
           <View
             style={{
               flexDirection: 'row',
@@ -132,7 +200,7 @@ export default class Profile extends Component {
             <TextInput
               placeholder="enter here"
               onChangeText={(input) => {
-                this.setState({ telephone: input });
+                this.setState({ telephoneplaceholder: input });
               }}
               style={{ fontSize: 15, fontFamily: 'Oxygen' }}
             />
@@ -168,17 +236,7 @@ export default class Profile extends Component {
         />
         <ScrollView>
           <View>
-            <CardItem style={styles.logocard}>
-              <Image
-                source={require('../assets/thumbnail.png')}
-                style={{
-                  width: 83,
-                  height: 108,
-                  resizeMode: 'contain',
-                  margin: 10,
-                }}
-              />
-            </CardItem>
+            
 
             <Card
               style={{
@@ -209,7 +267,7 @@ export default class Profile extends Component {
               style={{
                 alignSelf: 'center',
                 padding: 20,
-                height: 300,
+                height: 200,
                 width: 350,
                 borderRadius: 20,
               }}>
@@ -300,52 +358,9 @@ export default class Profile extends Component {
               </Col>
             </Grid> */}
 
-                <Grid style={{ marginLeft: -40, marginTop: 10, paddingBottom: 30 }}>
-                  <Col>
-                    <Body
-                      style={{
-                        textAlign: 'left',
-                        padding: 0,
-                        height: 100,
-                        width: 300,
-                        borderRadius: 20,
-                      }}>
-                      <Icon
-                        type="FontAwesome"
-                        name="bell"
-                        style={{ fontSize: 30, color: '#C18934' }}
-                      />
-                    </Body>
-                  </Col>
-                  <Col>
-                    <Body>
-                      <Text style={styles.rightTextSmall}>Off</Text>
-                    </Body>
-                  </Col>
-                </Grid>
+               
 
-                <Grid style={{ marginLeft: -40, marginTop: 10, paddingBottom: 30 }}>
-                  <Col>
-                    <Body
-                      style={{
-                        alignContent: 'flex-start',
-                        height: 100,
-                        width: 300,
-                        borderRadius: 20,
-                      }}>
-                      <Icon
-                        type="FontAwesome"
-                        name="question-circle-o"
-                        style={{ fontSize: 30, color: '#EFE9CB' }}
-                      />
-                    </Body>
-                  </Col>
-                  <Col>
-                    <Body>
-                      <Text style={styles.rightTextSmall}>About</Text>
-                    </Body>
-                  </Col>
-                </Grid>
+               
 
                 {/* EDIT BUTTOM IS HERE */}
                 <View style={{ justifyContent: 'center', alignSelf: 'center' }}>
